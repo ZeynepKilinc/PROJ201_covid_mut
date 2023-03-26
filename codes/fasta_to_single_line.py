@@ -4,7 +4,7 @@
 #Takes the file name as a parameter and opens a new file to write into
 #Writes the single line format of the given FASTA file into the new file
 def fasta_to_single_line(filename):
-    with open(filename) as input_file, open('testtt.txt', 'w') as new_file: #open the given file and create new in the same statement
+    with open(filename) as input_file, open('updated_nucleotide_sequences.fasta', 'w') as new_file: #open the given file and create new in the same statement
         sequence=''  # the string that will be updated and written into the new file
         for line in input_file:
             if line.startswith('>'): #descriptive lines are the ones that start with '>'
