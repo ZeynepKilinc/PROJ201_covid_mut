@@ -15,4 +15,4 @@ def fasta_to_single_line(filename):
             else:   #here the program goes over the lines that hold the genome data
                 sequence+=(line.replace('\n', ''))   #sequence variable is is updated to hold the lines of data without \n character in each loop until the descriptive line
 
-        new_file.write(sequence + '\n')  #this for the final data block which does not have a descriptive line after it
+        new_file.write(sequence + '\n')  #this is for the final data block which does not have a descriptive line after it
