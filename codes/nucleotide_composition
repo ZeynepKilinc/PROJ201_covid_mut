@@ -69,5 +69,3 @@ def ntseqcomp():
         out.write("\n")
 
     out.close()
-
-ntseqcomp()
