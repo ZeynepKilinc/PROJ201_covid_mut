@@ -1,8 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def positional_conservation_calculator(file_path):
-  with open(file_path, 'r') as f:
+def positional_conservation_calculator(filename):
+  with open(filename, 'r') as f:
     lines=f.readlines()
   titles=[]
   sequences=[]
