@@ -1,0 +1,75 @@
+import re
+import matplotlib.pyplot as plt
+
+# Read the FASTA file
+fasta_file = 'alignment.fasta'
+sequences = {}
+
+with open(fasta_file) as file:
+    for line in file:
+        line = line.strip()
+        if line.startswith('>'):
+            seq_id = line[1:]
+            sequences[seq_id] = ''
+        else:
+            # Remove any character that is not A, T, C, or G
+            seq = re.sub('[^ATCG]', '', line)
+            sequences[seq_id] += seq
+
+# Calculate the mutation frequencies
+mutation_counts = {}
+for seq in sequences.values():
+    for i in range(len(seq) - 2):
+        trinucleotide = seq[i:i+3]
+        if 'N' in trinucleotide:
+            continue
+        ref_nuc = trinucleotide[1]
+        for alt_nuc in ['A', 'C', 'G', 'T']:
+            if alt_nuc == ref_nuc:
+                continue
+            mut_signature = f'{ref_nuc}>{alt_nuc}'
+            if mut_signature not in mutation_counts:
+                mutation_counts[mut_signature] = {}
+            if trinucleotide not in mutation_counts[mut_signature]:
+                mutation_counts[mut_signature][trinucleotide] = 0
+            mutation_counts[mut_signature][trinucleotide] += 1
+
+# Create the subplots
+fig, axs = plt.subplots(6, 2, figsize=(10, 20))
+
+# Set the titles and y-axis labels for each subplot
+titles = ['A > C', 'A > G', 'A > T', 'G > A', 'G > C', 'G > T', 'T > A', 'T > C', 'T > G', 'C > A', 'C > G', 'C > T']
+y_labels = ['Probability of mutation'] * 12
+for ax, title, y_label in zip(axs.flat, titles, y_labels):
+    ax.set_title(title)
+    ax.set_ylabel(y_label)
+
+# Set the x-axis labels for the bottom row of subplots
+for ax in axs[-1, :]:
+    ax.set_xlabel('Trinucleotides')
+
+# Set the tick labels for each subplot
+for ax in axs.flat:
+    ax.tick_params(axis='x', labelrotation=90)
+
+# Create the bar charts
+bar_width = 0.8
+colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink']
+for i, mut_signature in enumerate(mutation_counts.keys()):
+    row = i // 2
+    col = i % 2
+    ax = axs[row, col]
+    x_labels = []
+    heights = []
+    for trinucleotide in mutation_counts[mut_signature]:
+        x_labels.append(trinucleotide[0] + mut_signature + trinucleotide[2])
+        heights.append(mutation_counts[mut_signature][trinucleotide])
+    total_height = sum(heights)
+    heights = [count/total_height for count in heights]
+    ax.bar(x_labels, heights, width=bar_width, color=colors[i % 6])
+    
+# Adjust the spacing between subplots
+plt.subplots_adjust(hspace=0.5)
+
+# Show the plot
+plt.show()
