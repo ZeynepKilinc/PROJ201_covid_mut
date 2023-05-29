@@ -1,0 +1,72 @@
+import matplotlib.pyplot as plt
+
+def count_mutations(sequence):
+    mutation_count = {}
+    for i, base in enumerate(sequence):
+        if base not in ['A', 'T', 'C', 'G']:
+            if i not in mutation_count:
+                mutation_count[i] = 0
+            mutation_count[i] += 1
+    return mutation_count
+
+def extract_country(header):
+    start_index = header.find("/") + 1
+    end_index = header.find("/", start_index)
+    if start_index > 0 and end_index > start_index:
+        return header[start_index:end_index]
+    return None
+
+def plot_mutation_bar_charts(fasta_file):
+    country_mutations = {}
+    current_header = None
+    sequences = []
+    max_length = 0
+    with open(fasta_file, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line.startswith('>'):
+                if current_header is not None and sequences:
+                    country = extract_country(current_header)
+                    if country is not None:
+                        if country not in country_mutations:
+                            country_mutations[country] = {}
+                        for seq in sequences:
+                            mutation_count = count_mutations(seq)
+                            for position, count in mutation_count.items():
+                                if position not in country_mutations[country]:
+                                    country_mutations[country][position] = 0
+                                country_mutations[country][position] += count
+                        max_length = max(max_length, len(sequences[0]))
+                current_header = line[1:]
+                sequences = []
+            else:
+                sequence = line
+                sequences.append(sequence)
+
+    
+    if current_header is not None and sequences:
+        country = extract_country(current_header)
+        if country is not None:
+            if country not in country_mutations:
+                country_mutations[country] = {}
+            for seq in sequences:
+                mutation_count = count_mutations(seq)
+                for position, count in mutation_count.items():
+                    if position not in country_mutations[country]:
+                        country_mutations[country][position] = 0
+                    country_mutations[country][position] += count
+
+    positions = list(range(max_length))
+
+    for country, mutation_count in country_mutations.items():
+        counts = [mutation_count.get(position, 0) for position in positions]
+
+        plt.figure()
+        plt.bar(positions, counts)
+        plt.title(f'Mutations in {country}')
+        plt.xlabel('Mutation Position')
+        plt.ylabel('Mutation Count')
+        plt.show()
+
+fasta_file = 'alignment.fasta'
+plot_mutation_bar_charts(fasta_file)
